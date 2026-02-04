@@ -13,12 +13,11 @@ import { supabase } from './supabaseClient'
 // Initialize map centered on NYC
 const map = L.map('map').setView([40.7128, -74.0060], 13)
 
-// Add OpenStreetMap tiles
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map)
 
-// Function to create a report
 async function createReport(lat, lng, type, description, photoFile) {
   // Upload photo if exists
   let photoUrl = null
@@ -51,7 +50,7 @@ async function createReport(lat, lng, type, description, photoFile) {
   }
 }
 
-// Function to add marker to map
+
 function addMarkerToMap(report) {
   const circle = L.circleMarker([report.latitude, report.longitude], {
     radius: 8,
