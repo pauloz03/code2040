@@ -1,3 +1,10 @@
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+  font-family: 'Inter', sans-serif;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -34,7 +41,34 @@
 }
 
 .card {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
   padding: 2em;
+}
+
+h1 {
+  color: #fff;
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 2.5rem;
+  letter-spacing: 2px;
+}
+
+button {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 6px;
+  background: #1e3c72;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #29539b;
 }
 
 .read-the-docs {
