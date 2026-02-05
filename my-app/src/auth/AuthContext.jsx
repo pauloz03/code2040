@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { client } from '../Supabase/client';
+import { supabase } from '../Supabase/client';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data, error } = await client.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
       if (data?.user) {
         setUser(data.user);
         setIsAuthenticated(true);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
     initAuth();
 
-    const { data: listener } = client.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setIsAuthenticated(!!session?.user);
       if (session?.user) {
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     setUser(data.user);
     setIsAuthenticated(true);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (email, password) => {
-    const { data, error } = await client.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     setUser(data.user);
     setIsAuthenticated(true);
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await client.auth.signOut();
+    await supabase.auth.signOut();
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('auth_user');
