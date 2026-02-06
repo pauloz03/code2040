@@ -34,7 +34,9 @@ export const reportService = {
           user_id: user.id,
           latitude,
           longitude,
-          location: `POINT(${longitude} ${latitude})`, // PostGIS format
+          // Note: location field (PostGIS POINT) is optional
+          // Uncomment if you have PostGIS enabled and want to use it:
+          // location: `POINT(${longitude} ${latitude})`,
           type,
           description,
           photo_url: photoUrl,

@@ -41,20 +41,30 @@ export class MapService {
   addReportMarker(report) {
     const color = this.getColorByType(report.type)
     const statusIcon = this.getStatusIcon(report.status)
+    const typeLabel = this.getTypeLabel(report.type)
     
     const circle = L.circleMarker([report.latitude, report.longitude], {
-      radius: 10,
+      radius: 12, // Slightly larger for better visibility
       fillColor: color,
       color: '#fff',
-      weight: 2,
+      weight: 3, // Thicker border for better visibility
       opacity: 1,
-      fillOpacity: 0.8
+      fillOpacity: 0.9
     }).addTo(this.map)
+
+    // Add tooltip (shows on hover)
+    circle.bindTooltip(typeLabel, {
+      permanent: false, // Only show on hover
+      direction: 'top',
+      offset: [0, -10],
+      className: 'report-tooltip',
+      opacity: 0.95
+    })
 
     const popupContent = `
       <div style="min-width: 200px;">
         <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">
-          ${this.formatType(report.type)} ${statusIcon}
+          ${typeLabel} ${statusIcon}
         </h3>
         <p style="margin: 4px 0; font-size: 14px;">
           <strong>Status:</strong> <span style="color: ${this.getStatusColor(report.status)};">${report.status}</span>
@@ -218,14 +228,33 @@ export class MapService {
    */
   getColorByType(type) {
     const colors = {
-      streetlight: '#ffeb3b',    // Yellow
-      pothole: '#f44336',        // Red
-      sidewalk: '#2196f3',       // Blue
-      graffiti: '#9c27b0',       // Purple
-      trash: '#4caf50',          // Green
-      other: '#9e9e9e'           // Gray
+      streetlight: '#FFD700',    // Gold/Yellow - bright and distinct
+      pothole: '#FF4444',        // Bright Red - urgent
+      sidewalk: '#2196F3',        // Blue - clear and visible
+      graffiti: '#9C27B0',       // Purple - distinct
+      trash: '#4CAF50',          // Green - clear
+      hydrant: '#FF6B35',        // Orange/Red - distinct for fire hydrants
+      other: '#757575'           // Gray - neutral
     }
     return colors[type] || colors.other
+  }
+
+  /**
+   * Get user-friendly label for report type
+   * @param {string} type 
+   * @returns {string} Formatted label
+   */
+  getTypeLabel(type) {
+    const labels = {
+      streetlight: 'Broken Streetlight',
+      pothole: 'Pothole',
+      sidewalk: 'Sidewalk Issue',
+      graffiti: 'Graffiti',
+      trash: 'Trash/Debris',
+      hydrant: 'Broken Fire Hydrant',
+      other: 'Other Issue'
+    }
+    return labels[type] || this.formatType(type)
   }
 
   /**
