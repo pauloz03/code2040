@@ -13,7 +13,6 @@ function Home() {
           <p className="hero-subtitle">
             Community Watchers helps residents in historically disinvested neighborhoods report local issues and track whether city response is equitable.
             We connect reports to historical redlining to reveal patterns, then make the data easy to act on.
-            Communities—especially historically redlined Black and Latinx neighborhoods—have waited longer for basic services for decades. CommunityWatch helps residents report local issues and track whether city response is equitable. We connect reports to historical redlining to reveal patterns—then make the data easy to act on.
           </p>
           <div className="cta-buttons">
             <button className="cta-primary" onClick={() => navigate('/signup')}>
