@@ -37,7 +37,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/dashboard" className="navbar-logo">Reporters</Link>
+        <Link to="/dashboard" className="navbar-logo">Reporters Hub</Link>
         <ul className="navbar-menu">
           <li><Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>Map</Link></li>
           <li><Link to="/leaderboard" className={isActive('/leaderboard') ? 'active' : ''}>Leaderboard</Link></li>

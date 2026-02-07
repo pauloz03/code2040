@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 body {
   min-height: 100vh;
   margin: 0;
   background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
 body, html {
@@ -104,6 +106,24 @@ body, html {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* Home page background image */
+  background: linear-gradient(135deg, rgba(15,32,39,0.7), rgba(44,83,100,0.7)), url('./assets/background 2040.png') center center/cover no-repeat;
+  position: relative;
+  z-index: 0;
+}
+
+.landing-page::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 30, 40, 0.35); /* subtle dark overlay */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.landing-page > * {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-section {
@@ -408,6 +428,24 @@ button:hover {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+}
+
+.dashboard-page {
+  background: #38476a !important;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+.dashboard-page, .leaderboard-page, .profile-page {
+  background: linear-gradient(135deg, #e6ecf5 0%, #bfc9db 100%);
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+#dashboard-map {
+  background: #232b3a;
 }
 
 .auth-form {
