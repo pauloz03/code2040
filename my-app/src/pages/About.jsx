@@ -8,41 +8,42 @@ function About() {
         <h1>About CommunityWatch</h1>
         
         <section className="about-section">
-          <h2>Our Mission</h2>
+          <h2>Why This Matters</h2>
           <p>
-            CommunityWatch helps residents document infrastructure and environmental issues 
-            in their neighborhoods — from uncollected trash to broken sidewalks to malfunctioning streetlights.
-          </p>
-          <p>
-            By creating a clear record of what's reported and how quickly it's addressed, we aim to 
-            highlight patterns in service delivery and support communities in advocating for more equitable attention.
+            Many Black and Latinx neighborhoods were historically redlined and experienced decades 
+            of underinvestment. That history still shows up today in infrastructure conditions and 
+            how quickly issues get addressed.
           </p>
         </section>
 
         <section className="about-section">
-          <h2>Why This Matters</h2>
-          <p>
-            Many communities — particularly historically redlined Black and Latinx neighborhoods — 
-            have experienced decades of disinvestment. This history continues to affect infrastructure 
-            maintenance, environmental quality, and municipal responsiveness today.
-          </p>
-          <p>
-            When residents document these issues systematically, they create data that can:
-          </p>
-          <ul className="about-list">
-            <li>Reveal disparities in how quickly problems are addressed</li>
-            <li>Support conversations with local officials backed by facts</li>
-            <li>Help communities hold their cities accountable</li>
-            <li>Build collective power through shared documentation</li>
+          <h2>What We Do</h2>
+          <ul className="about-list-bullets">
+            <li>
+              <strong>Report:</strong> Residents document issues (trash, sidewalks, street hazards).
+            </li>
+            <li>
+              <strong>Compare:</strong> We analyze response times and trends using NYC 311 data.
+            </li>
+            <li>
+              <strong>Reveal:</strong> We overlay historical redlining to highlight service disparities.
+            </li>
           </ul>
         </section>
 
         <section className="about-section">
-          <h2>How It Works</h2>
+          <h2>What "Resistance" Means Here</h2>
           <p>
-            Creating an account takes just a moment. Once you're logged in, you can report issues 
-            right from your phone — adding photos, descriptions, and locations. Track updates and 
-            see how your community's reports compare to response times in other areas.
+            Turning everyday problems into evidence communities can use to advocate for equitable public services.
+          </p>
+        </section>
+
+        <section className="about-section">
+          <h2>Our Approach</h2>
+          <p>
+            We use language like "highlight patterns," "compare," and "track disparities" — 
+            not "prove discrimination." Our goal is to provide clear data that communities can use 
+            in conversations with local officials, backed by facts and historical context.
           </p>
           <p>
             This tool is for you — to document what you see, amplify resident voices, and work 

@@ -17,7 +17,8 @@ function Dashboard() {
   const [infrastructureVisibility, setInfrastructureVisibility] = useState({
     hydrants: false,
     streetlights: false,
-    stopSigns: false
+    stopSigns: false,
+    redlining: false
   })
   const [isLoadingHydrants, setIsLoadingHydrants] = useState(false)
   const [targetLocation, setTargetLocation] = useState(null)
@@ -128,7 +129,18 @@ function Dashboard() {
     setInfrastructureVisibility(newVisibility)
 
     if (!mapService) return
-    if (type === 'hydrants') {
+    
+    if (type === 'redlining') {
+      if (newVisibility.redlining) {
+        // TODO: Load HOLC GeoJSON data when available
+        // For now, show a placeholder message
+        console.log('HOLC redlining overlay toggled ON - data layer pending')
+        alert('Redlining overlay coming soon! This will show HOLC grades (A/B/C/D) from the 1930s.')
+      } else {
+        console.log('HOLC redlining overlay toggled OFF')
+        // mapService.clearRedliningOverlay() // When implemented
+      }
+    } else if (type === 'hydrants') {
       if (newVisibility.hydrants) {
         const bounds = mapService.getBounds()
         setIsLoadingHydrants(true)
@@ -213,8 +225,8 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <h1>Welcome to Reporters!</h1>
-      <p className="dashboard-msg">Report infrastructure issues in your area</p>
+      <h1>Disparity Dashboard</h1>
+      <p className="dashboard-msg">Report issues and track whether city response is equitable</p>
 
       {isLoadingLocation && (
         <div className="location-status-container">
@@ -238,7 +250,20 @@ function Dashboard() {
       </div>
 
       <div className="infrastructure-controls" style={{ margin: '1rem auto', maxWidth: 1000, padding: '1rem', backgroundColor: '#f5f5f5', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Show Infrastructure:</h3>
+        <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Map Layers:</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#d32f2f' }}>
+            <input 
+              type="checkbox" 
+              checked={infrastructureVisibility.redlining} 
+              onChange={() => handleInfrastructureToggle('redlining')} 
+              style={{ marginRight: '0.5rem', cursor: 'pointer' }} 
+            />
+            ☐ Show historical redlining (HOLC) overlay
+            {!infrastructureVisibility.redlining && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(Color by grade A/B/C/D - 1930s)</span>}
+          </label>
+        </div>
+        <h3 style={{ margin: '1rem 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Infrastructure:</h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
           <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
             <input type="checkbox" checked={infrastructureVisibility.hydrants} onChange={() => handleInfrastructureToggle('hydrants')} disabled={isLoadingHydrants} style={{ marginRight: '0.5rem', cursor: 'pointer' }} />
