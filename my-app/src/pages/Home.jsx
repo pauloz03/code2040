@@ -14,8 +14,8 @@ function Home() {
           Together, we can shine a light on patterns of service delivery and advocate for equitable attention.
         </p>
         <div className="cta-buttons">
-          <button className="cta-primary" onClick={() => navigate('/dashboard')}>
-            Report an Issue
+          <button className="cta-primary" onClick={() => navigate('/signup')}>
+            Get Started
           </button>
           <button className="cta-secondary" onClick={() => navigate('/about')}>
             Learn More
