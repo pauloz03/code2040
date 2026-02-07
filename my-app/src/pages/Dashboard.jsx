@@ -225,8 +225,10 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <h1>Disparity Dashboard</h1>
-      <p className="dashboard-msg">Report issues and track whether city response is equitable</p>
+      <div className="page-container">
+        <h1>Disparity Dashboard</h1>
+        <p className="dashboard-msg">Report issues and track whether city response is equitable</p>
+      </div>
 
       {isLoadingLocation && (
         <div className="location-status-container">
@@ -242,46 +244,50 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="dashboard-controls">
+      <div className="dashboard-controls page-container">
         <button className="btn-report" onClick={() => setShowReportForm(true)}>+ Report Issue</button>
         <button className="btn-location" onClick={() => loadUserLocation(true)}>
           {userLocation ? '📍 Update Location' : '📍 Get My Location'}
         </button>
       </div>
 
-      <div className="infrastructure-controls" style={{ margin: '1rem auto', maxWidth: 1000, padding: '1rem', backgroundColor: '#f5f5f5', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Map Layers:</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#d32f2f' }}>
-            <input 
-              type="checkbox" 
-              checked={infrastructureVisibility.redlining} 
-              onChange={() => handleInfrastructureToggle('redlining')} 
-              style={{ marginRight: '0.5rem', cursor: 'pointer' }} 
-            />
-            ☐ Show historical redlining (HOLC) overlay
-            {!infrastructureVisibility.redlining && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(Color by grade A/B/C/D - 1930s)</span>}
-          </label>
-        </div>
-        <h3 style={{ margin: '1rem 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Infrastructure:</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
-            <input type="checkbox" checked={infrastructureVisibility.hydrants} onChange={() => handleInfrastructureToggle('hydrants')} disabled={isLoadingHydrants} style={{ marginRight: '0.5rem', cursor: 'pointer' }} />
-            Fire Hydrants
-            {isLoadingHydrants && infrastructureVisibility.hydrants && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666' }}>(Loading...)</span>}
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
-            <input type="checkbox" checked={infrastructureVisibility.streetlights} onChange={() => handleInfrastructureToggle('streetlights')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
-            Streetlights (Coming Soon)
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
-            <input type="checkbox" checked={infrastructureVisibility.stopSigns} onChange={() => handleInfrastructureToggle('stopSigns')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
-            Stop Signs (Coming Soon)
-          </label>
+      <div className="dashboard-controls page-container">
+        <div className="infrastructure-controls">
+          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Map Layers:</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#d32f2f' }}>
+              <input 
+                type="checkbox" 
+                checked={infrastructureVisibility.redlining} 
+                onChange={() => handleInfrastructureToggle('redlining')} 
+                style={{ marginRight: '0.5rem', cursor: 'pointer' }} 
+              />
+              ☐ Show historical redlining (HOLC) overlay
+              {!infrastructureVisibility.redlining && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(Color by grade A/B/C/D - 1930s)</span>}
+            </label>
+          </div>
+          <h3 style={{ margin: '1rem 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Infrastructure:</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
+              <input type="checkbox" checked={infrastructureVisibility.hydrants} onChange={() => handleInfrastructureToggle('hydrants')} disabled={isLoadingHydrants} style={{ marginRight: '0.5rem', cursor: 'pointer' }} />
+              Fire Hydrants
+              {isLoadingHydrants && infrastructureVisibility.hydrants && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666' }}>(Loading...)</span>}
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
+              <input type="checkbox" checked={infrastructureVisibility.streetlights} onChange={() => handleInfrastructureToggle('streetlights')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
+              Streetlights (Coming Soon)
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
+              <input type="checkbox" checked={infrastructureVisibility.stopSigns} onChange={() => handleInfrastructureToggle('stopSigns')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
+              Stop Signs (Coming Soon)
+            </label>
+          </div>
         </div>
       </div>
 
-      <div id="dashboard-map" ref={mapContainerRef} style={{ width: '100%', maxWidth: 1000, height: 500, margin: '2rem auto', borderRadius: '12px', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', zIndex: 1 }}></div>
+      <div className="page-container">
+        <div id="dashboard-map" ref={mapContainerRef} className="dashboard-map"></div>
+      </div>
 
       {showReportForm && (
         <ReportForm
