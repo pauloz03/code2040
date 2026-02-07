@@ -1,8 +1,8 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import Dashboard from './pages/Dashboard'
+import Login from './pages/Login.jsx'
+import Signup from './pages/Signup.jsx'
+import Dashboard from './pages/Dashboard.jsx'
 
 function Home() {
   const navigate = useNavigate()
