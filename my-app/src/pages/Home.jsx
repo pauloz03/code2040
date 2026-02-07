@@ -7,6 +7,7 @@ function Home() {
 
   return (
     <div className="landing-page">
+<<<<<<< HEAD
       <div className="page-container">
         <section className="hero-section">
           <h1 className="hero-title">Document Neglect. Demand Equal Service.</h1>
@@ -24,6 +25,23 @@ function Home() {
           </div>
         </section>
       </div>
+=======
+      <section className="hero-section">
+        <h1 className="hero-title">Your Voice Matters</h1>
+        <p className="hero-subtitle">
+          Report infrastructure and environmental issues in your community.
+          Together, we can shine a light on patterns of service delivery and advocate for equitable attention.
+        </p>
+        <div className="cta-buttons">
+          <button className="cta-primary" onClick={() => navigate('/signup')}>
+            Get Started
+          </button>
+          <button className="cta-secondary" onClick={() => navigate('/about')}>
+            Learn More
+          </button>
+        </div>
+      </section>
+>>>>>>> ef49f76dd7fdb4c6176dc2ea6672af44fc574538
 
       {/* Disparity Snapshot - The proof */}
       <div className="page-container">

@@ -225,10 +225,15 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
+<<<<<<< HEAD
       <div className="page-container">
         <h1>Disparity Dashboard</h1>
         <p className="dashboard-msg">Report issues and track whether city response is equitable</p>
       </div>
+=======
+      <h1>Welcome to Reporters Hub</h1>
+      <p className="dashboard-msg">Report infrastructure issues in your area</p>
+>>>>>>> ef49f76dd7fdb4c6176dc2ea6672af44fc574538
 
       {isLoadingLocation && (
         <div className="location-status-container">
@@ -251,6 +256,7 @@ function Dashboard() {
         </button>
       </div>
 
+<<<<<<< HEAD
       <div className="dashboard-controls page-container">
         <div className="infrastructure-controls">
           <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Map Layers:</h3>
@@ -288,6 +294,28 @@ function Dashboard() {
       <div className="page-container">
         <div id="dashboard-map" ref={mapContainerRef} className="dashboard-map"></div>
       </div>
+=======
+      <div className="infrastructure-controls" style={{ margin: '1rem auto', maxWidth: 1000, padding: '1rem', backgroundColor: '#f5f5f5', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>Show Infrastructure:</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
+            <input type="checkbox" checked={infrastructureVisibility.hydrants} onChange={() => handleInfrastructureToggle('hydrants')} disabled={isLoadingHydrants} style={{ marginRight: '0.5rem', cursor: 'pointer' }} />
+            Fire Hydrants
+            {isLoadingHydrants && infrastructureVisibility.hydrants && <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666' }}>(Loading...)</span>}
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
+            <input type="checkbox" checked={infrastructureVisibility.streetlights} onChange={() => handleInfrastructureToggle('streetlights')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
+            Streetlights 
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
+            <input type="checkbox" checked={infrastructureVisibility.stopSigns} onChange={() => handleInfrastructureToggle('stopSigns')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
+            Stop Signs 
+          </label>
+        </div>
+      </div>
+
+      <div id="dashboard-map" ref={mapContainerRef} style={{ width: '80vw', height: 550, margin: '2rem 0', borderRadius: '12px', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', zIndex: 1 }}></div>
+>>>>>>> ef49f76dd7fdb4c6176dc2ea6672af44fc574538
 
       {showReportForm && (
         <ReportForm
