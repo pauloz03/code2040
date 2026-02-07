@@ -25,6 +25,11 @@ export class MapService {
     this.map = L.map(containerId).setView(defaultOptions.center, defaultOptions.zoom)
     this.markers = {}
     this.userMarker = null
+    this.infrastructureMarkers = {
+      hydrants: [],
+      streetlights: [],
+      stopSigns: []
+    }
     
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -205,9 +210,25 @@ export class MapService {
    * @param {Function} callback - Called with (latitude, longitude) when map is clicked
    */
   onMapClick(callback) {
+    if (!this.map) {
+      console.warn('Map not initialized yet, cannot add click handler')
+      return
+    }
     this.map.on('click', (e) => {
       callback(e.latlng.lat, e.latlng.lng)
     })
+  }
+
+  /**
+   * Add click handler for fire hydrant markers
+   * @param {Function} callback - Called with (latitude, longitude, hydrantData) when hydrant is clicked
+   */
+  onHydrantClick(callback) {
+    if (!this.map) {
+      console.warn('Map not initialized yet, cannot add hydrant click handler')
+      return
+    }
+    this.onHydrantClick = callback
   }
 
   /**
@@ -306,6 +327,160 @@ export class MapService {
   }
 
   /**
+   * Add fire hydrant markers to the map
+   * @param {Array} hydrants - Array of hydrant objects with latitude and longitude
+   */
+  addFireHydrants(hydrants) {
+    // Clear existing hydrant markers
+    this.clearInfrastructureMarkers('hydrants')
+    
+    console.log('Adding', hydrants.length, 'fire hydrants to map')
+    
+    if (!hydrants || hydrants.length === 0) {
+      console.log('No hydrants to add')
+      return
+    }
+    
+    hydrants.forEach((hydrant, index) => {
+      if (!hydrant.latitude || !hydrant.longitude) {
+        console.warn('Invalid hydrant data:', hydrant)
+        return
+      }
+      // Create a custom icon for fire hydrants
+      const hydrantIcon = L.divIcon({
+        className: 'fire-hydrant-marker',
+        html: `
+          <div style="
+            width: 12px;
+            height: 12px;
+            background: #FF0000;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          "></div>
+        `,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+      })
+      
+      const marker = L.marker([hydrant.latitude, hydrant.longitude], {
+        icon: hydrantIcon,
+        zIndexOffset: 100 // Keep infrastructure markers above base map but below reports
+      }).addTo(this.map)
+      
+      marker.bindTooltip('Fire Hydrant', {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -8],
+        className: 'infrastructure-tooltip'
+      })
+      
+      // Store hydrant data on marker for click handler
+      marker.hydrantData = hydrant
+      
+      marker.bindPopup(`
+        <div style="min-width: 150px;">
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #FF0000;">
+            🔥 Fire Hydrant
+          </h3>
+          <p style="margin: 4px 0; font-size: 12px; color: #666;">
+            Location: ${hydrant.latitude.toFixed(6)}, ${hydrant.longitude.toFixed(6)}
+          </p>
+          <button 
+            id="report-hydrant-btn" 
+            style="
+              margin-top: 8px;
+              padding: 6px 12px;
+              background: #FF0000;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 12px;
+              width: 100%;
+            "
+            onmouseover="this.style.background='#cc0000'"
+            onmouseout="this.style.background='#FF0000'"
+          >
+            Report Issue
+          </button>
+        </div>
+      `, {
+        maxWidth: 200
+      })
+      
+      // Handle popup button click when popup opens
+      marker.on('popupopen', () => {
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          const popup = marker.getPopup()
+          const popupElement = popup.getElement()
+          if (popupElement) {
+            const reportBtn = popupElement.querySelector('#report-hydrant-btn')
+            if (reportBtn && this.onHydrantClick) {
+              reportBtn.onclick = (e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                this.onHydrantClick(hydrant.latitude, hydrant.longitude, hydrant)
+                this.map.closePopup()
+              }
+            }
+          }
+        }, 10)
+      })
+      
+      this.infrastructureMarkers.hydrants.push(marker)
+    })
+  }
+
+  /**
+   * Clear infrastructure markers of a specific type
+   * @param {string} type - 'hydrants' | 'streetlights' | 'stopSigns' | 'all'
+   */
+  clearInfrastructureMarkers(type = 'all') {
+    if (type === 'all') {
+      Object.keys(this.infrastructureMarkers).forEach(key => {
+        this.infrastructureMarkers[key].forEach(marker => {
+          this.map.removeLayer(marker)
+        })
+        this.infrastructureMarkers[key] = []
+      })
+    } else if (this.infrastructureMarkers[type]) {
+      this.infrastructureMarkers[type].forEach(marker => {
+        this.map.removeLayer(marker)
+      })
+      this.infrastructureMarkers[type] = []
+    }
+  }
+
+  /**
+   * Get current map bounds
+   * @returns {Object} Bounds object with north, south, east, west
+   */
+  getBounds() {
+    const bounds = this.map.getBounds()
+    return {
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+      east: bounds.getEast(),
+      west: bounds.getWest()
+    }
+  }
+
+  /**
+   * Add event listener for map move/zoom to update infrastructure data
+   * @param {Function} callback - Called when map bounds change
+   */
+  onBoundsChange(callback) {
+    this.map.on('moveend', () => {
+      callback(this.getBounds())
+    })
+    this.map.on('zoomend', () => {
+      callback(this.getBounds())
+    })
+  }
+
+  /**
    * Destroy the map instance
    */
   destroy() {
@@ -314,6 +489,11 @@ export class MapService {
       this.map = null
       this.markers = {}
       this.userMarker = null
+      this.infrastructureMarkers = {
+        hydrants: [],
+        streetlights: [],
+        stopSigns: []
+      }
     }
   }
 }

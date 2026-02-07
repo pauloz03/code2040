@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import '../App.css'
 import { MapService } from '../lib/map'
 import { reportService } from '../../backend/services/reportService'
 import { geolocationService } from '../../backend/utils/geolocation'
+import { infrastructureService } from '../../backend/services/infrastructureService'
 import ReportForm from '../components/ReportForm'
 
 function Dashboard() {
@@ -12,8 +13,16 @@ function Dashboard() {
   const [showReportForm, setShowReportForm] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(true)
   const [locationError, setLocationError] = useState('')
+  const [infrastructureVisibility, setInfrastructureVisibility] = useState({
+    hydrants: false,
+    streetlights: false,
+    stopSigns: false
+  })
+  const [isLoadingHydrants, setIsLoadingHydrants] = useState(false)
+  const [targetLocation, setTargetLocation] = useState(null) // For hydrant reports
   const mapContainerRef = useRef(null)
-  const mapClickHandlerRef = useRef(null)
+  const boundsChangeTimeoutRef = useRef(null)
+  const mapInitializedRef = useRef(false)
 
   const loadUserLocation = async (showLoading = true) => {
     if (showLoading) {
@@ -22,22 +31,20 @@ function Dashboard() {
     setLocationError('')
     
     try {
-      // Use very lenient settings for location
       const position = await geolocationService.getCurrentPosition({
-        timeout: 10000, // 10 seconds - shorter timeout
-        enableHighAccuracy: false, // Faster response
+        timeout: 10000,
+        enableHighAccuracy: false,
         fallbackToLowAccuracy: true,
-        maximumAge: 600000 // Use cached location if less than 10 minutes old
+        maximumAge: 600000
       })
       setUserLocation({
         latitude: position.latitude,
         longitude: position.longitude
       })
-      setLocationError('') // Clear any previous errors
+      setLocationError('')
     } catch (error) {
       console.error('Error getting location:', error)
       setLocationError(error.message)
-      // Don't block the app if location fails
     } finally {
       if (showLoading) {
         setIsLoadingLocation(false)
@@ -48,7 +55,6 @@ function Dashboard() {
   const skipLocation = () => {
     setIsLoadingLocation(false)
     setLocationError('')
-    // User can still click on map or use report form to set location
   }
 
   const loadReports = async () => {
@@ -61,68 +67,117 @@ function Dashboard() {
   }
 
   const handleReportSubmitted = (newReport) => {
-    // Add new report to the list
     setReports(prevReports => [newReport, ...prevReports])
     
-    // Add marker to map immediately
     if (mapService) {
       mapService.addReportMarker(newReport)
+    }
+    
+    setTargetLocation(null)
+  }
+
+  const handleHydrantClick = (lat, lng, hydrantData) => {
+    setTargetLocation({
+      latitude: lat,
+      longitude: lng
+    })
+    setShowReportForm(true)
+  }
+
+  const loadFireHydrants = useCallback(async (bounds) => {
+    if (!mapService || !infrastructureVisibility.hydrants) {
+      return
+    }
+
+    setIsLoadingHydrants(true)
+    try {
+      const hydrants = await infrastructureService.getFireHydrants(bounds, 500)
+      if (mapService && hydrants.length > 0) {
+        mapService.addFireHydrants(hydrants)
+      }
+    } catch (error) {
+      console.error('Error loading fire hydrants:', error)
+      alert('Failed to load fire hydrants. Check console for details.')
+    } finally {
+      setIsLoadingHydrants(false)
+    }
+  }, [mapService, infrastructureVisibility.hydrants])
+
+  const handleInfrastructureToggle = async (type) => {
+    const newVisibility = {
+      ...infrastructureVisibility,
+      [type]: !infrastructureVisibility[type]
+    }
+    
+    setInfrastructureVisibility(newVisibility)
+
+    if (mapService) {
+      if (type === 'hydrants') {
+        if (newVisibility.hydrants) {
+          const bounds = mapService.getBounds()
+          setIsLoadingHydrants(true)
+          try {
+            const hydrants = await infrastructureService.getFireHydrants(bounds, 500)
+            if (hydrants.length > 0) {
+              mapService.addFireHydrants(hydrants)
+            }
+          } catch (error) {
+            console.error('Toggle: Error loading fire hydrants:', error)
+            alert('Failed to load fire hydrants. Check console for details.')
+          } finally {
+            setIsLoadingHydrants(false)
+          }
+        } else {
+          mapService.clearInfrastructureMarkers('hydrants')
+        }
+      } else {
+        mapService.clearInfrastructureMarkers(type === 'streetlights' ? 'streetlights' : 'stopSigns')
+      }
     }
   }
 
   // Initialize map and load data
   useEffect(() => {
-    // Initialize map
-    const defaultCenter = [40.7128, -74.0060] // NYC default
+    const defaultCenter = [40.7128, -74.0060]
     const map = new MapService('dashboard-map', {
       center: defaultCenter,
       zoom: 13
     })
-    setMapService(map)
 
-    // Set up map click handler
-    const handleMapClick = (lat, lng) => {
-      // If clicking on map, open report form with that location
-      if (!showReportForm) {
-        setUserLocation({ latitude: lat, longitude: lng })
-        setShowReportForm(true)
+    const setupHandlers = () => {
+      if (map && map.getMap()) {
+        mapInitializedRef.current = true
+        
+        const handleMapClick = (lat, lng) => {
+          if (!showReportForm) {
+            setUserLocation({ latitude: lat, longitude: lng })
+            setShowReportForm(true)
+          }
+        }
+
+        map.onMapClick(handleMapClick)
+        map.onHydrantClick(handleHydrantClick)
+      } else {
+        setTimeout(setupHandlers, 100)
       }
     }
-    
-    map.onMapClick(handleMapClick)
-    mapClickHandlerRef.current = handleMapClick
 
-    // Try to get user location (non-blocking, don't wait for it)
+    setMapService(map)
+    setTimeout(setupHandlers, 300)
+
     loadUserLocation(true).catch(() => {
-      // Silently fail - location is optional
       setIsLoadingLocation(false)
     })
 
-    // Load existing reports
     loadReports()
 
-    // Cleanup on unmount
     return () => {
+      if (boundsChangeTimeoutRef.current) {
+        clearTimeout(boundsChangeTimeoutRef.current)
+      }
       map.destroy()
     }
-  }, [])
-
-  // Update map click handler when showReportForm changes
-  useEffect(() => {
-    if (mapService) {
-      // Remove old handler and add new one
-      const handleMapClick = (lat, lng) => {
-        if (!showReportForm) {
-          setUserLocation({ latitude: lat, longitude: lng })
-          setShowReportForm(true)
-        }
-      }
-      // Note: MapService.onMapClick adds a new listener each time
-      // In a production app, you'd want to remove old listeners first
-      mapService.onMapClick(handleMapClick)
-      mapClickHandlerRef.current = handleMapClick
-    }
-  }, [mapService, showReportForm])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update map when user location changes
   useEffect(() => {
@@ -135,17 +190,12 @@ function Dashboard() {
   // Update map when reports change
   useEffect(() => {
     if (mapService && reports.length > 0) {
-      // Clear existing markers
       mapService.clearMarkers()
-      
-      // Add all report markers
       reports.forEach(report => {
         mapService.addReportMarker(report)
       })
 
-      // Fit map to show all markers if we have user location
       if (userLocation) {
-        // Fit to show both user location and reports
         const allMarkers = Object.values(mapService.markers)
         if (allMarkers.length > 0) {
           mapService.fitToMarkers()
@@ -153,6 +203,28 @@ function Dashboard() {
       }
     }
   }, [mapService, reports, userLocation])
+
+  // Set up bounds change handler when map service is ready
+  useEffect(() => {
+    if (mapService) {
+      const handleBoundsChange = (bounds) => {
+        if (boundsChangeTimeoutRef.current) {
+          clearTimeout(boundsChangeTimeoutRef.current)
+        }
+        boundsChangeTimeoutRef.current = setTimeout(() => {
+          loadFireHydrants(bounds)
+        }, 500)
+      }
+      
+      mapService.onBoundsChange(handleBoundsChange)
+      
+      return () => {
+        if (boundsChangeTimeoutRef.current) {
+          clearTimeout(boundsChangeTimeoutRef.current)
+        }
+      }
+    }
+  }, [mapService, loadFireHydrants])
 
   return (
     <div className="dashboard-page">
@@ -202,6 +274,73 @@ function Dashboard() {
         </button>
       </div>
 
+      <div className="infrastructure-controls" style={{
+        margin: '1rem auto',
+        maxWidth: 1000,
+        padding: '1rem',
+        backgroundColor: '#f5f5f5',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '16px', fontWeight: 600 }}>
+          Show Infrastructure:
+        </h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}>
+            <input
+              type="checkbox"
+              checked={infrastructureVisibility.hydrants}
+              onChange={() => handleInfrastructureToggle('hydrants')}
+              disabled={isLoadingHydrants}
+              style={{ marginRight: '0.5rem', cursor: 'pointer' }}
+            />
+             Fire Hydrants
+            {isLoadingHydrants && infrastructureVisibility.hydrants && (
+              <span style={{ marginLeft: '0.5rem', fontSize: '12px', color: '#666' }}>
+                (Loading...)
+              </span>
+            )}
+          </label>
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            cursor: 'pointer',
+            fontSize: '14px',
+            opacity: 0.5
+          }}>
+            <input
+              type="checkbox"
+              checked={infrastructureVisibility.streetlights}
+              onChange={() => handleInfrastructureToggle('streetlights')}
+              disabled
+              style={{ marginRight: '0.5rem', cursor: 'not-allowed' }}
+            />
+             Streetlights (Coming Soon)
+          </label>
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            cursor: 'pointer',
+            fontSize: '14px',
+            opacity: 0.5
+          }}>
+            <input
+              type="checkbox"
+              checked={infrastructureVisibility.stopSigns}
+              onChange={() => handleInfrastructureToggle('stopSigns')}
+              disabled
+              style={{ marginRight: '0.5rem', cursor: 'not-allowed' }}
+            />
+             Stop Signs (Coming Soon)
+          </label>
+        </div>
+      </div>
+
       <div 
         id="dashboard-map" 
         ref={mapContainerRef}
@@ -218,9 +357,13 @@ function Dashboard() {
 
       {showReportForm && (
         <ReportForm
-          onClose={() => setShowReportForm(false)}
+          onClose={() => {
+            setShowReportForm(false)
+            setTargetLocation(null)
+          }}
           onReportSubmitted={handleReportSubmitted}
           initialLocation={userLocation}
+          targetLocation={targetLocation}
         />
       )}
     </div>
