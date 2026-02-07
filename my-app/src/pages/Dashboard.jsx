@@ -226,7 +226,7 @@ function Dashboard() {
   return (
     <div className="dashboard-page">
       <div className="page-container">
-        <h1>Disparity Dashboard</h1>
+        <h1>Welcome to your Reporter Hub</h1>
         <p className="dashboard-msg">Report issues and track whether city response is equitable</p>
       </div>
 
@@ -275,11 +275,11 @@ function Dashboard() {
             </label>
             <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
               <input type="checkbox" checked={infrastructureVisibility.streetlights} onChange={() => handleInfrastructureToggle('streetlights')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
-              Streetlights (Coming Soon)
+              Streetlights
             </label>
             <label style={{ display: 'flex', alignItems: 'center', cursor: 'not-allowed', fontSize: '14px', opacity: 0.5 }}>
               <input type="checkbox" checked={infrastructureVisibility.stopSigns} onChange={() => handleInfrastructureToggle('stopSigns')} disabled style={{ marginRight: '0.5rem', cursor: 'not-allowed' }} />
-              Stop Signs (Coming Soon)
+              Stop Signs 
             </label>
           </div>
         </div>

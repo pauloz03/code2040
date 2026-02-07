@@ -9,17 +9,17 @@ function Home() {
     <div className="landing-page">
       <div className="page-container">
         <section className="hero-section">
-          <h1 className="hero-title">Document Neglect. Demand Equal Service.</h1>
+          <h1 className="hero-title">Your Voice Matters</h1>
           <p className="hero-subtitle">
-            CommunityWatch helps residents in historically disinvested neighborhoods report local issues and track whether city response is equitable.
-            We connect reports to historical redlining to reveal patterns—then make the data easy to act on.
+            Community Watchers helps residents in historically disinvested neighborhoods report local issues and track whether city response is equitable.
+            We connect reports to historical redlining to reveal patterns, then make the data easy to act on.
           </p>
           <div className="cta-buttons">
-            <button className="cta-primary" onClick={() => navigate('/dashboard')}>
+            <button className="cta-primary" onClick={() => navigate('/signup')}>
               Report an Issue
             </button>
-            <button className="cta-secondary" onClick={() => navigate('/dashboard')}>
-              View Disparity Dashboard
+            <button className="cta-secondary" onClick={() => navigate('/about')}>
+              Learn More
             </button>
           </div>
         </section>
